@@ -3,8 +3,10 @@ from datetime import datetime
 #This is to check if the file exists if not create it 
 try:
     f = open("./data.json", "r")
+    f.close()
 except FileNotFoundError:
     f = open("./data.json", "w")
+    f.close()
 
 f = open("./data.json", "r")
 #this is a comment
@@ -74,11 +76,11 @@ if "budget" not in budgetData:
 
 #Calculate every category's expense
 
-    def getCategorySpending(category_name): 
-        total = 0.0
-        for record in budgetData["expense"][0][category_name]:
-            total += record.get("expense_amount", 0.0)
-            return total
+def getCategorySpending(category_name): 
+    total = 0.0
+    for record in budgetData["expense"][0][category_name]:
+        total += record.get("expense_amount", 0.0)
+    return total
 
 #Setup every month budget for each category
 def setBudgetLimits():
@@ -108,7 +110,7 @@ def showBudgetStatus():
         print(f"  Remaining: ${remaining:.2f}")
 
         if limit > 0:
-            used_percent + (spent / limit) * 100
+            used_percent = (spent / limit) * 100
             print(f"  Used:   {used_percent:.0f}%")
 
             #Warning
@@ -146,17 +148,21 @@ def generateReport():
     totalIncome = 0
     totalExpense = 0
     category = {"food" : 0,"transportation" : 0, "entertainment" : 0, "bills" : 0, "other" : 0}
-    for item in budgetData["income"]: 
-        totalIncome = item["income_amount"] + totalIncome
-    print(totalIncome)
-    print(budgetData)
-    for item in categories:
+    for item in budgetData.get("income", []): 
         try:
-            #print(budgetData["expense"][0][item][0]["description"])
-            totalExpense = totalExpense + budgetData["expense"][0][item][0]["expense_amount"]
-            category[item] = int(budgetData["expense"][0][item][0]["expense_amount"]) + float(category[item])
-        except:
+            totalIncome = float(item.get("income_amount", 0.0)) + totalIncome
+        except (TypeError, ValueError):
             continue
+
+    for cat in budgetData.get("expense", [{}])[0].keys():
+        try:
+            for item in budgetData["expense"][0].get(cat, []):
+                amt = float(item.get("expense_amount", 0.0))
+                totalExpense += amt
+                category[cat] = float(category.get(cat, 0.0)) + amt
+        except Exception as a:
+            print(a)
+
     print(category)
     print(totalExpense)
 
@@ -173,3 +179,6 @@ while True:
     elif option == "4":
         saveAndExit()
     
+
+
+
