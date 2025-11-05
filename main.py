@@ -1,5 +1,5 @@
 import json
-
+#This is to check if the file exists if not create it 
 try:
     f = open("./data.json", "r")
 except FileNotFoundError:
@@ -32,11 +32,13 @@ expenseCategoryMSG = """\nExpense Category\n
 5. Other
 
 Select an option: """
-
-categories = ["food","transportation", "Entertainment", "bills", "other"]
+#list of categories so I can access the data in the dictonary later
+categories = ["food","transportation", "entertainment", "bills", "other"]
 def addIncome():
+    #get user input
     option = input(addIncomeMSG).strip()
     if option == "1":
+        #input for the description field 
         description = input("Income Description: ")
         try:
             amount = float(input("Monthly income: "))
@@ -52,10 +54,16 @@ def addIncome():
                 raise ValueError
             else:
                 description = input("Expense Description: ")
-                amount = float(input(""))
+                amount = float(input("Expense amount: "))
+                budgetData["expense"][0][categories[category - 1]].append({"description" : description, "expense_amount" : amount})
+                input(f"Successfully added \"{description}\" to the {categories[category - 1]} category with an amount of {amount}$ \nPress enter to continue...")
         except ValueError:
             input("You did not enter a valid number!\nPress enter to continue...")
             addIncome()
+    elif option == "3":
+        return
+    else:
+        input("Invalid option\nPress enter to continue...")
 
 
 while True:
