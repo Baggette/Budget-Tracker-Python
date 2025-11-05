@@ -136,12 +136,29 @@ def budgetManagement():
         if choice =="1":
             setBudgetLimits()
         elif choice == "2":
-            showBudgeStatus()
+            showBudgetStatus()
         elif choice == "3":
             return
         else:
             input("Invalid option\nPress enter to continue...")
 
+def generateReport():
+    totalIncome = 0
+    totalExpense = 0
+    category = {"food" : 0,"transportation" : 0, "entertainment" : 0, "bills" : 0, "other" : 0}
+    for item in budgetData["income"]: 
+        totalIncome = item["income_amount"] + totalIncome
+    print(totalIncome)
+    print(budgetData)
+    for item in categories:
+        try:
+            #print(budgetData["expense"][0][item][0]["description"])
+            totalExpense = totalExpense + budgetData["expense"][0][item][0]["expense_amount"]
+            category[item] = int(budgetData["expense"][0][item][0]["expense_amount"]) + float(category[item])
+        except:
+            continue
+    print(category)
+    print(totalExpense)
 
 while True:
     option = input(mainMenuMSG).strip()
@@ -151,6 +168,8 @@ while True:
     elif option == "2":
         budgetManagement()
         continue
+    elif option == "3":
+        generateReport()
     elif option == "4":
         saveAndExit()
     
