@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 #This is to check if the file exists if not create it 
 try:
     f = open("./data.json", "r")
@@ -42,7 +43,8 @@ def addIncome():
         description = input("Income Description: ")
         try:
             amount = float(input("Monthly income: "))
-            budgetData["income"].append({"description" : description, "income_amount" : amount})
+            today = datetime.now().strftime("%Y-%m-%d")
+            budgetData["income"].append({"description" : description, "income_amount" : amount, "timestamp" : today})
             print(budgetData)
         except ValueError:  
             input("You did not enter a valid number! \nPress enter to continue...")
@@ -65,14 +67,90 @@ def addIncome():
     else:
         input("Invalid option\nPress enter to continue...")
 
+# Budegt Management
+
+if "budget" not in budgetData:
+    budgetData["budget"] = {cat: 0.0 for cat in categories}
+
+#Calculate every category's expense
+
+    def getCategorySpending(category_name): 
+        total = 0.0
+        for record in budgetData["expense"][0][category_name]:
+            total += record.get("expense_amount", 0.0)
+            return total
+
+#Setup every month budget for each category
+def setBudgetLimits():
+    print("\n=== Set Mothly Budget Limits ===\n")
+    for cat in categories:
+        while True:
+            try:
+                amount = float(input(f"Enter monthly budget for {cat.title()}: $"))
+                break
+            except CalueError:
+                print("You did not nter a valid number, please try again,")
+        budgetData["budget"][cat] = amount
+    input("\nBudgets updated successfully!\nPress enter to continue...")
+
+#Check the status of budget: compare income and expense + warning = remaining budget
+
+def showBudgetStatus():
+    print("\n=== Budget Status ===\n")
+    for cat in categories:
+        limit = budgetData["budget"].get(cat, 0.0)
+        spent = getCategorySpending(cat)
+        remaining = limit - spent
+
+        print(f"Category: {cat.title()}")
+        print(f"  Budget:    ${limit:.2f}")
+        print(f"  Spent:     ${spent:.2f}")
+        print(f"  Remaining: ${remaining:.2f}")
+
+        if limit > 0:
+            used_percent + (spent / limit) * 100
+            print(f"  Used:   {used_percent:.0f}%")
+
+            #Warning
+            if used_percent >= 100:
+                print("  WARNING: You are over budget in this category!")
+            elif used_percent >= 80:
+                print("  WARNING: You have used more than 80% of this budget")
+        else:
+            print("  No budget set for this category.")
+        print()
+
+    input("press enter to continue...")
+
+#Budget Management submenu
+budgetMenuMSG = """\nBudget Management\n
+1. Set monthly budget limits
+2. View budget status
+3. Back to main menu
+
+Select an option: """
+
+def budgetManagement():
+    while True:
+        choice = input(budgetMenuMSG).strip()
+        if choice =="1":
+            setBudgetLimits()
+        elif choice == "2":
+            showBudgeStatus()
+        elif choice == "3":
+            return
+        else:
+            input("Invalid option\nPress enter to continue...")
+
 
 while True:
     option = input(mainMenuMSG).strip()
     if option == "1":
         addIncome()
         continue
+    elif option == "2":
+        budgetManagement()
+        continue
     elif option == "4":
         saveAndExit()
-    
-
     
