@@ -1,8 +1,14 @@
 {
-    "income" : {
+    "income" : [
 
-    },
-    "expense" : {
-        
+    ],
+    "expense" : [
+        {
+            "food" : [],
+            "transportation" : [],
+            "entertainment" : [],
+            "bills" : [],
+            "other" : []
     }
+    ]
 }
