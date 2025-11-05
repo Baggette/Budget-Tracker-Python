@@ -6,7 +6,7 @@ except FileNotFoundError:
     f = open("./data.json", "w")
 
 f = open("./data.json", "r")
-
+#this is a comment
 budgetData = json.load(f)
 mainMenuMSG = """\nPersonal Budget Tracker\n
 1. Income and Expense Tracking
