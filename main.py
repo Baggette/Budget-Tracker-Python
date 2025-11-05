@@ -31,7 +31,7 @@ def addIncome():
             amount = float(input("Monthly income: "))
             budgetData["income"].append({"description" : description, "income_amount" : amount})
             print(budgetData)
-        except ValueError:
+        except ValueError:  
             input("You did not enter a valid number! \nPress enter to continue")
             addIncome()
 
