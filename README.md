@@ -4,18 +4,18 @@ A command-line personal budget tracking application built with Python that helps
 
 ## Features
 
-- 💰 Income and expense tracking
-- 📊 Category-based expense management
-- 💹 Budget limit setting and monitoring
-- 📋 Transaction history and reporting
-- 💾 Persistent data storage using JSON
+- Income and expense tracking
+- Category-based expense management
+- Budget limit setting and monitoring
+- Transaction history and reporting
+- Persistent data storage using JSON
 
 ### Expense Categories
-- 🍔 Food
-- 🚗 Transportation
-- 🎮 Entertainment
-- 📑 Bills
-- 📦 Other
+- Food
+- Transportation
+- Entertainment
+- Bills
+- Other
 
 ## Prerequisites
 
@@ -26,7 +26,7 @@ A command-line personal budget tracking application built with Python that helps
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/Budget-Tracker-Python.git
+git clone https://github.com/Baggette/Budget-Tracker-Python.git
 ```
 
 2. Navigate to the project directory:
