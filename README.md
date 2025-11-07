@@ -4,10 +4,11 @@ A command-line personal budget tracking application built with Python that helps
 
 ## Features
 
-- Income and expense tracking
-- Category-based expense management
-- Budget limit setting and monitoring
-- Transaction history and reporting
+- Income and expense tracking with transaction history
+- Category-based expense management with budget limits
+- Monthly financial reporting
+- Summary report generation
+- Real-time budget monitoring with warnings
 - Persistent data storage using JSON
 
 ### Expense Categories
@@ -44,37 +45,63 @@ python main.py
 ### Main Menu Options
 
 1. **Income and Expense Tracking**
-   - Add new income transactions
-   - Record expenses with categories
-   - Each transaction includes description, amount, and timestamp
+   - Add new income transactions with descriptions
+   - Record expenses with categories and descriptions
+   - Automatic timestamp recording for all transactions
 
 2. **Budget Management**
    - Set monthly budget limits for each category
-   - View current budget status
-   - Get warnings when approaching (80%) or exceeding budget limits
+   - View detailed budget status for all categories
+   - Get warnings at 80% and 100% budget utilization
+   - View remaining budget amounts
 
 3. **View All Transactions**
-   - Generate comprehensive financial reports
+   - See transaction summaries
    - View total income and expenses
-   - See category-wise expense breakdown
+   - Check category-wise expense breakdown
+   - Calculate remaining balance
 
-4. **Save and Exit**
+4. **Generate Monthly Report**
+   - Comprehensive financial analysis
+   - Savings rate calculation
+   - Top spending categories
+   - Budget utilization statistics
+   - Categories exceeding 80% usage
+
+5. **Save and Exit**
    - Automatically saves all data to `data.json`
    - Safely exits the program
 
-## Data Storage
+## Data Structure
 
-The application stores all data in a `data.json` file, which:
-- Is automatically created on first run
-- Maintains transaction history
-- Stores budget limits
-- Preserves data between sessions
+The application stores data in `data.json` with the following structure:
+```json
+{
+    "income": [],
+    "expense": [
+        {
+            "food": [],
+            "transportation": [],
+            "entertainment": [],
+            "bills": [],
+            "other": []
+        }
+    ],
+    "budget": {
+        "food": 0.0,
+        "transportation": 0.0,
+        "entertainment": 0.0,
+        "bills": 0.0,
+        "other": 0.0
+    }
+}
+```
 
 ## Project Structure
 
 ```
 Budget-Tracker-Python/
-├── main.py          # Main application file
+├── main.py          # Main application file with all functionality
 ├── data.json        # Data storage file (auto-generated)
 └── README.md        # Documentation
 ```
