@@ -44,9 +44,10 @@ f.close()
 # Define menu messages for different operations
 mainMenuMSG = """\nPersonal Budget Tracker\n
 1. Income and Expense Tracking
-2. Budget management 
-3. View all transactions
-4. Save and Exit
+2. Budget Management 
+3. View All Transactions
+4. Generate Report
+5. Save and Exit
 
 Select an option: """
 
@@ -175,7 +176,7 @@ def budgetManagement():
             input("Invalid option\nPress enter to continue...")
 
 # ----------- Report -----------
-def generateReport():
+def viewTransactions():
     """Generate and display summary report of all transactions"""
     totalIncome = 0
     totalExpense = 0
@@ -195,7 +196,7 @@ def generateReport():
             totalExpense += amt
             category[cat] += amt
 
-    # Display report
+    # Display Transaction Summary
     print("\n=== Transaction Summary ===\n")
     print(f"Total Income:  ${totalIncome:.2f}")
     print(f"Total Expense: ${totalExpense:.2f}")
@@ -204,6 +205,83 @@ def generateReport():
     for k, v in category.items():
         print(f"  {k.title()}: ${v:.2f}")
     input("\nPress enter to continue...")
+
+
+# ----------- Generates Monthly Report -----------
+def generateReport():
+    """Generate a comprehensive monthly financial report including income, expenses, and budget status"""
+    # Try to load the data file, exit if not found
+    try:
+        with open("data.json", "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        print("No data file found. Please add some transactions first.")
+        return
+
+    # --- Basic Calculations ---
+    total_income = sum(item["amount"] for item in data["income"])
+    total_expenses = 0
+    category_totals = {}
+
+    # Calculate expenses for each category and store totals
+    for category, items in data["expense"][0].items():
+        category_total = sum(item["amount"] for item in items)
+        total_expenses += category_total
+        category_totals[category] = category_total
+
+    # Calculate net income and savings rate (with zero division protection)
+    net_income = total_income - total_expenses
+    savings_rate = (net_income / total_income * 100) if total_income > 0 else 0
+
+    # Sort categories by expense amount and calculate percentage of total expenses
+    sorted_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
+    total_percentage = {k: (v / total_expenses * 100) if total_expenses > 0 else 0 for k, v in category_totals.items()}
+
+    # Define budget limits for each category
+    budgets = {
+        "food": 300,
+        "transportation": 150,
+        "entertainment": 200,
+        "bills": 500,
+        "other": 100
+    }
+
+    # Track categories exceeding 80% of budget and calculate total budget usage
+    over_80 = []
+    total_budget_used = 0
+    total_budget_limit = sum(budgets.values())
+
+    # Check each category against its budget limit
+    for category, spent in category_totals.items():
+        if budgets.get(category, 0) > 0:
+            utilization = spent / budgets[category] * 100
+            total_budget_used += spent
+            if utilization >= 80:
+                over_80.append(f"{category.capitalize()} ({utilization:.0f}%)")
+
+    # Calculate overall budget utilization percentage
+    total_utilization = (total_budget_used / total_budget_limit * 100) if total_budget_limit > 0 else 0
+
+    # --- Print Report ---
+    print("\n=== Monthly Financial Report ===")
+    print(f"Report Date: {datetime.now().strftime('%B %d, %Y')}")
+    print("\nSUMMARY :")
+    print(f"- Total Income: ${total_income:,.2f}")
+    print(f"- Total Expenses: ${total_expenses:,.2f}")
+    print(f"- Net Income: ${net_income:,.2f}")
+    print(f"- Savings Rate: {savings_rate:.1f}%")
+
+    print("\nTOP SPENDING CATEGORIES:")
+    for i, (cat, amt) in enumerate(sorted_categories[:3], 1):
+        print(f"{i}. {cat.capitalize()}: ${amt:,.2f} ({total_percentage[cat]:.1f}%)")
+
+    print("\nBUDGET STATUS:")
+    if over_80:
+        print(f"- Categories over 80%: {', '.join(over_80)}")
+    else:
+        print("- No categories over 80% usage.")
+    print(f"- Total budget utilization: {total_utilization:.1f}%\n")
+    input("\nPress Enter to continue...")
 
 # ----------- Save and Exit -----------
 def saveAndExit():
@@ -223,6 +301,8 @@ while True:
         budgetManagement()
         continue
     elif option == "3":
-        generateReport()
+        viewTransactions()
     elif option == "4":
+        generateReport()
+    elif option == "5":
         saveAndExit()
