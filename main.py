@@ -211,21 +211,15 @@ def viewTransactions():
 def generateReport():
     """Generate a comprehensive monthly financial report including income, expenses, and budget status"""
     # Try to load the data file, exit if not found
-    try:
-        with open("data.json", "r") as file:
-            data = json.load(file)
-    except FileNotFoundError:
-        print("No data file found. Please add some transactions first.")
-        return
 
     # --- Basic Calculations ---
     # Calculate total income
-    total_income = sum(float(item.get("income_amount", 0)) for item in data["income"])
+    total_income = sum(float(item.get("income_amount", 0)) for item in budgetData["income"])
     total_expenses = 0
     category_totals = {}
 
     # Calculate expenses for each category and store totals
-    for category, items in data["expense"][0].items():
+    for category, items in budgetData["expense"][0].items():
         category_total = sum(float(item.get("expense_amount", 0)) for item in items)
         total_expenses += category_total
         category_totals[category] = category_total
