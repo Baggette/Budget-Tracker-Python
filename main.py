@@ -219,13 +219,14 @@ def generateReport():
         return
 
     # --- Basic Calculations ---
-    total_income = sum(item["amount"] for item in data["income"])
+    # Calculate total income
+    total_income = sum(float(item.get("income_amount", 0)) for item in data["income"])
     total_expenses = 0
     category_totals = {}
 
     # Calculate expenses for each category and store totals
     for category, items in data["expense"][0].items():
-        category_total = sum(item["amount"] for item in items)
+        category_total = sum(float(item.get("expense_amount", 0)) for item in items)
         total_expenses += category_total
         category_totals[category] = category_total
 
@@ -272,8 +273,11 @@ def generateReport():
     print(f"- Savings Rate: {savings_rate:.1f}%")
 
     print("\nTOP SPENDING CATEGORIES:")
-    for i, (cat, amt) in enumerate(sorted_categories[:3], 1):
-        print(f"{i}. {cat.capitalize()}: ${amt:,.2f} ({total_percentage[cat]:.1f}%)")
+    # Get only top 3 categories
+    top_three = sorted_categories[:3]
+    for category in top_three:
+        cat, amt = category  # unpack the tuple
+        print(f"- {cat.capitalize()}: ${amt:,.2f} ({total_percentage[cat]:.1f}%)")
 
     print("\nBUDGET STATUS:")
     if over_80:
