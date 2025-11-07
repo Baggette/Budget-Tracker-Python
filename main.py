@@ -210,8 +210,6 @@ def viewTransactions():
 # ----------- Generates Monthly Report -----------
 def generateReport():
     """Generate a comprehensive monthly financial report including income, expenses, and budget status"""
-    # Try to load the data file, exit if not found
-
     # --- Basic Calculations ---
     # Calculate total income
     total_income = sum(float(item.get("income_amount", 0)) for item in budgetData["income"])
