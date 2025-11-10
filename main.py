@@ -72,37 +72,42 @@ categories = ["food", "transportation", "entertainment", "bills", "other"]
 
 # ----------- Add Income / Expense -----------
 def addIncome():
-    """Handle adding new income or expense transactions"""
-    option = input(addIncomeMSG).strip()
-    if option == "1":
-        # Add new income
-        description = input("Income Description: ")
-        try:
-            amount = float(input("Monthly income: $"))
-            transaction = Transaction(description, amount, t_type="income")
-            budgetData["income"].append(transaction.to_dict())
-            input("Income added successfully!\n\nPress enter to continue...")
-        except ValueError:
-            input("You did not enter a valid number! \n\nPress enter to continue...")
-            addIncome()
-    elif option == "2":
-        # Add new expense
-        try:
-            category = int(input(expenseCategoryMSG))
-            if category <= 0 or category > 5:
-                raise ValueError
-            description = input("Expense Description: ")
-            amount = float(input("Expense amount: $"))
-            transaction = Transaction(description, amount, category=categories[category - 1], t_type="expense")
-            budgetData["expense"][0][categories[category - 1]].append(transaction.to_dict())
-            input(f"Successfully added \"{description}\" to the {categories[category - 1]} category with an amount of {amount}$ \nPress enter to continue...")
-        except ValueError:
-            input("You did not enter a valid number!\nPress enter to continue...")
-            addIncome()
-    elif option == "3":
-        return
-    else:
-        input("Invalid option\nPress enter to continue...")
+    try:
+        """Handle adding new income or expense transactions"""
+        option = input(addIncomeMSG).strip()
+        if option == "1":
+            # Add new income
+            description = input("Income Description: ")
+            try:
+                amount = float(input("Monthly income: $"))
+                transaction = Transaction(description, amount, t_type="income")
+                if description == "": raise ValueError
+                budgetData["income"].append(transaction.to_dict())
+                input("Income added successfully!\n\nPress enter to continue...")
+            except ValueError:
+                input("You did not enter a valid number or one or more fields were left blank! \n\nPress enter to continue...")
+                addIncome()
+        elif option == "2":
+            # Add new expense
+            try:
+                category = int(input(expenseCategoryMSG))
+                if category <= 0 or category > 5:
+                    raise ValueError
+                description = input("Expense Description: ")
+                if description == "": raise ValueError
+                amount = float(input("Expense amount: $"))
+                transaction = Transaction(description, amount, category=categories[category - 1], t_type="expense")
+                budgetData["expense"][0][categories[category - 1]].append(transaction.to_dict())
+                input(f"Successfully added \"{description}\" to the {categories[category - 1]} category with an amount of {amount}$ \nPress enter to continue...")
+            except ValueError:
+                input("You did not enter a valid number or one or more fields were left blank!\nPress enter to continue...")
+                addIncome()
+        elif option == "3":
+            return
+        else:
+            input("Invalid option\nPress enter to continue...")
+    except Exception as ex:
+        input(f"An unexpexted error occured: {ex}")
 
 # ----------- Budget Management Setup -----------
 if "budget" not in budgetData:
@@ -122,6 +127,7 @@ def setBudgetLimits():
         while True:
             try:
                 amount = float(input(f"Enter monthly budget for {cat.title()}: $"))
+                if amount < 0: raise ValueError
                 break
             except ValueError:
                 print("You did not enter a valid number, please try again.")
@@ -129,31 +135,34 @@ def setBudgetLimits():
     input("\nBudgets updated successfully!\nPress enter to continue...")
 
 def showBudgetStatus():
-    """Display current budget status for all categories"""
-    print("\n=== Budget Status ===\n")
-    for cat in categories:
-        limit = budgetData["budget"].get(cat, 0.0)
-        spent = getCategorySpending(cat)
-        remaining = limit - spent
+    try:
+        """Display current budget status for all categories"""
+        print("\n=== Budget Status ===\n")
+        for cat in categories:
+            limit = budgetData["budget"].get(cat, 0.0)
+            spent = getCategorySpending(cat)
+            remaining = limit - spent
 
-        # Print budget details for each category
-        print(f"Category: {cat.title()}")
-        print(f"  Budget:    ${limit:.2f}")
-        print(f"  Spent:     ${spent:.2f}")
-        print(f"  Remaining: ${remaining:.2f}")
+            # Print budget details for each category
+            print(f"Category: {cat.title()}")
+            print(f"  Budget:    ${limit:.2f}")
+            print(f"  Spent:     ${spent:.2f}")
+            print(f"  Remaining: ${remaining:.2f}")
 
-        # Show percentage used and warnings if approaching/exceeding budget
-        if limit > 0:
-            used_percent = (spent / limit) * 100
-            print(f"  Used:   {used_percent:.0f}%")
-            if used_percent >= 100:
-                print("  WARNING: You are over budget in this category!")
-            elif used_percent >= 80:
-                print("  WARNING: You have used more than 80% of this budget")
-        else:
-            print("  No budget set for this category.")
-        print()
-    input("Press enter to continue...")
+            # Show percentage used and warnings if approaching/exceeding budget
+            if limit > 0:
+                used_percent = (spent / limit) * 100
+                print(f"  Used:   {used_percent:.0f}%")
+                if used_percent >= 100:
+                    print("  WARNING: You are over budget in this category!")
+                elif used_percent >= 80:
+                    print("  WARNING: You have used more than 80% of this budget")
+            else:
+                print("  No budget set for this category.")
+            print()
+        input("Press enter to continue...")
+    except Exception as ex:
+        input("an unexpected error occured: {ex} \nPress enter to continue...")
 
 budgetMenuMSG = """\nBudget Management\n
 1. Set monthly budget limits
@@ -209,75 +218,78 @@ def viewTransactions():
 
 # ----------- Generates Monthly Report -----------
 def generateReport():
-    """Generate a comprehensive monthly financial report including income, expenses, and budget status"""
-    # --- Basic Calculations ---
-    # Calculate total income
-    total_income = sum(float(item.get("income_amount", 0)) for item in budgetData["income"])
-    total_expenses = 0
-    category_totals = {}
+    try:
+        """Generate a comprehensive monthly financial report including income, expenses, and budget status"""
+        # --- Basic Calculations ---
+        # Calculate total income
+        total_income = sum(float(item.get("income_amount", 0)) for item in budgetData["income"])
+        total_expenses = 0
+        category_totals = {}
 
-    # Calculate expenses for each category and store totals
-    for category, items in budgetData["expense"][0].items():
-        category_total = sum(float(item.get("expense_amount", 0)) for item in items)
-        total_expenses += category_total
-        category_totals[category] = category_total
+        # Calculate expenses for each category and store totals
+        for category, items in budgetData["expense"][0].items():
+            category_total = sum(float(item.get("expense_amount", 0)) for item in items)
+            total_expenses += category_total
+            category_totals[category] = category_total
 
-    # Calculate net income and savings rate (with zero division protection)
-    net_income = total_income - total_expenses
-    savings_rate = (net_income / total_income * 100) if total_income > 0 else 0
+        # Calculate net income and savings rate (with zero division protection)
+        net_income = total_income - total_expenses
+        savings_rate = (net_income / total_income * 100) if total_income > 0 else 0
 
-    # Sort categories by expense amount and calculate percentage of total expenses
-    sorted_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
-    total_percentage = {k: (v / total_expenses * 100) if total_expenses > 0 else 0 for k, v in category_totals.items()}
+        # Sort categories by expense amount and calculate percentage of total expenses
+        sorted_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
+        total_percentage = {k: (v / total_expenses * 100) if total_expenses > 0 else 0 for k, v in category_totals.items()}
 
-    # Define budget limits for each category
-    budgets = {
-        "food": 300,
-        "transportation": 150,
-        "entertainment": 200,
-        "bills": 500,
-        "other": 100
-    }
+        # Define budget limits for each category
+        budgets = {
+            "food": 300,
+            "transportation": 150,
+            "entertainment": 200,
+            "bills": 500,
+            "other": 100
+        }
 
-    # Track categories exceeding 80% of budget and calculate total budget usage
-    over_80 = []
-    total_budget_used = 0
-    total_budget_limit = sum(budgets.values())
+        # Track categories exceeding 80% of budget and calculate total budget usage
+        over_80 = []
+        total_budget_used = 0
+        total_budget_limit = sum(budgets.values())
 
-    # Check each category against its budget limit
-    for category, spent in category_totals.items():
-        if budgets.get(category, 0) > 0:
-            utilization = spent / budgets[category] * 100
-            total_budget_used += spent
-            if utilization >= 80:
-                over_80.append(f"{category.capitalize()} ({utilization:.0f}%)")
+        # Check each category against its budget limit
+        for category, spent in category_totals.items():
+            if budgets.get(category, 0) > 0:
+                utilization = spent / budgets[category] * 100
+                total_budget_used += spent
+                if utilization >= 80:
+                    over_80.append(f"{category.capitalize()} ({utilization:.0f}%)")
 
-    # Calculate overall budget utilization percentage
-    total_utilization = (total_budget_used / total_budget_limit * 100) if total_budget_limit > 0 else 0
+        # Calculate overall budget utilization percentage
+        total_utilization = (total_budget_used / total_budget_limit * 100) if total_budget_limit > 0 else 0
 
-    # --- Print Report ---
-    print("\n=== Monthly Financial Report ===")
-    print(f"Report Date: {datetime.now().strftime('%B %d, %Y')}")
-    print("\nSUMMARY :")
-    print(f"- Total Income: ${total_income:,.2f}")
-    print(f"- Total Expenses: ${total_expenses:,.2f}")
-    print(f"- Net Income: ${net_income:,.2f}")
-    print(f"- Savings Rate: {savings_rate:.1f}%")
+        # --- Print Report ---
+        print("\n=== Monthly Financial Report ===")
+        print(f"Report Date: {datetime.now().strftime('%B %d, %Y')}")
+        print("\nSUMMARY :")
+        print(f"- Total Income: ${total_income:,.2f}")
+        print(f"- Total Expenses: ${total_expenses:,.2f}")
+        print(f"- Net Income: ${net_income:,.2f}")
+        print(f"- Savings Rate: {savings_rate:.1f}%")
 
-    print("\nTOP SPENDING CATEGORIES:")
-    # Get only top 3 categories
-    top_three = sorted_categories[:3]
-    for category in top_three:
-        cat, amt = category  # unpack the tuple
-        print(f"- {cat.capitalize()}: ${amt:,.2f} ({total_percentage[cat]:.1f}%)")
+        print("\nTOP SPENDING CATEGORIES:")
+        # Get only top 3 categories
+        top_three = sorted_categories[:3]
+        for category in top_three:
+            cat, amt = category  # unpack the tuple
+            print(f"- {cat.capitalize()}: ${amt:,.2f} ({total_percentage[cat]:.1f}%)")
 
-    print("\nBUDGET STATUS:")
-    if over_80:
-        print(f"- Categories over 80%: {', '.join(over_80)}")
-    else:
-        print("- No categories over 80% usage.")
-    print(f"- Total budget utilization: {total_utilization:.1f}%\n")
-    input("\nPress Enter to continue...")
+        print("\nBUDGET STATUS:")
+        if over_80:
+            print(f"- Categories over 80%: {', '.join(over_80)}")
+        else:
+            print("- No categories over 80% usage.")
+        print(f"- Total budget utilization: {total_utilization:.1f}%\n")
+        input("\nPress Enter to continue...")
+    except Exception as ex:
+        input("an unexpected error occured: {ex} \nPress enter to continue...")
 
 # ----------- Save and Exit -----------
 def saveAndExit():
@@ -303,5 +315,5 @@ while True:
     elif option == "5":
         saveAndExit()
     else: 
-        input("You did not ente a valid option! \nPress enter to continue...")
+        input("You did not enter a valid option! \nPress enter to continue...")
         continue
