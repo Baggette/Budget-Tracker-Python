@@ -1,0 +1,52 @@
+{
+    "income": [
+        {
+            "description": "work",
+            "timestamp": "2025-11-10",
+            "income_amount": 2000.0
+        },
+        {
+            "description": "side gig",
+            "timestamp": "2025-11-10",
+            "income_amount": 500.0
+        },
+        {
+            "description": "city of winnipehg",
+            "timestamp": "2025-11-10",
+            "income_amount": 5000.0
+        }
+    ],
+    "expense": [
+        {
+            "food": [
+                {
+                    "description": "food",
+                    "timestamp": "2025-11-10",
+                    "expense_amount": 200.0
+                },
+                {
+                    "description": "a",
+                    "timestamp": "2025-11-10",
+                    "expense_amount": 100.0
+                }
+            ],
+            "transportation": [],
+            "entertainment": [],
+            "bills": [],
+            "other": [
+                {
+                    "description": "trip ",
+                    "timestamp": "2025-11-10",
+                    "expense_amount": 1000.0
+                }
+            ]
+        }
+    ],
+    "budget": {
+        "food": 400.0,
+        "transportation": 300.0,
+        "entertainment": 500.0,
+        "bills": 400.0,
+        "other": 400.0
+    }
+}
