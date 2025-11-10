@@ -302,3 +302,6 @@ while True:
         generateReport()
     elif option == "5":
         saveAndExit()
+    else: 
+        input("You did not ente a valid option! \nPress enter to continue...")
+        continue
